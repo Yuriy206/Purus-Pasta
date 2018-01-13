@@ -6,6 +6,7 @@
 
   <target name="build-env">
     <mkdir dir="build" />
+  	<mkdir dir="build/lib" />
     <mkdir dir="build/classes" />
     <available property="has-res-jar" file="build/hafen-res.jar" />
     <available property="has-buildinfo" file="build/classes/buildinfo" />
@@ -56,7 +57,7 @@
       <fileset dir="build/classes-lib" />
       <manifest>
 	<attribute name="Main-Class" value="haven.MainFrame" />
-	<attribute name="Class-Path" value="pasta-res.jar jogl.jar gluegen-rt.jar amber-res.jar builtin-res.jar hafen-res.jar l10n.jar" />
+	<attribute name="Class-Path" value="lib/pasta-res.jar lib/jogl.jar lib/gluegen-rt.jar lib/amber-res.jar lib/builtin-res.jar lib/hafen-res.jar lib/l10n.jar" />
       </manifest>
     </jar>
     <chmod file="build/hafen.jar" perm="a+x" />
@@ -70,7 +71,7 @@
   </target>
 
   <target name="l10n-jar" depends="build-env">
-    <jar destfile="build/l10n.jar">
+    <jar destfile="build/lib/l10n.jar">
       <fileset dir="." includes="l10n/*.properties" excludes="l10n/*_new.properties"/>
     </jar>
   </target>
@@ -83,12 +84,12 @@
 	</target>
 	
 	<target name="custom-jar" depends="custom-encode">
-		<jar basedir="build/custom-res" destfile="build/pasta-res.jar"/>
+		<jar basedir="build/custom-res" destfile="build/lib/pasta-res.jar"/>
 		<delete dir="build/custom-res"/>
 	</target>
   
   <target name="jars" depends="build-env, jar, res-jar, l10n-jar, custom-jar">
-    <copy todir="build">
+    <copy todir="build/lib">
       <fileset dir="lib">
 	<include name="jogl.jar" />
 	<include name="gluegen-rt.jar" />
