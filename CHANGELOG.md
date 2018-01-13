@@ -4,7 +4,7 @@
 	- Removed all of the previous Purus Pasta features
 	- Added more hiding options
 	- Added farming bot
-	- Added trough fillfer bot
+	- Added trough filler bot
 	- Added hunger bar
 	- Added FEP bar
 	- Added kin-colored circles around players
