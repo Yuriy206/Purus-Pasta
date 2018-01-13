@@ -2,7 +2,8 @@
 
 <project name="hafen" default="deftgt">
   <property name="name" value="amber"/>
-  <property name="version" value=""/>
+	<!-- MUISTA PÄIVITTÄÄ VERSIO -->
+  <property name="version" value="3.0.0"/>
 
   <target name="build-env">
     <mkdir dir="build" />
