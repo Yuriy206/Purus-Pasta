@@ -129,7 +129,7 @@ public class SeedCropFarmer extends Window implements Runnable {
 			while (BotUtils.findNearestStageCrop(5, 0, cropName) == null) {
 				BotUtils.sleep(10);
 			}
-			
+
 			// Drop all (seed)items from the players inventory
 			BotUtils.dropItem(0);
 			for (Widget w = BotUtils.playerInventory().child; w != null; w = w.next) {
@@ -145,9 +145,10 @@ public class SeedCropFarmer extends Window implements Runnable {
 			cropsHarvested++;
 			lblProg.settext(cropsHarvested + "/" + totalCrops);
 		}
-		BotUtils.sysMsg(cropName.substring(cropName.lastIndexOf("/") + 1).substring(0, 1).toUpperCase()
-						+ cropName.substring(cropName.lastIndexOf("/") + 1).substring(1)
-						+ " Farmer finished!", Color.white);
+		BotUtils.sysMsg(
+				cropName.substring(cropName.lastIndexOf("/") + 1).substring(0, 1).toUpperCase()
+						+ cropName.substring(cropName.lastIndexOf("/") + 1).substring(1) + " Farmer finished!",
+				Color.white);
 		this.destroy();
 	}
 
@@ -194,9 +195,10 @@ public class SeedCropFarmer extends Window implements Runnable {
 
 	public void stop() {
 		// Stops thread
-		BotUtils.sysMsg(cropName.substring(cropName.lastIndexOf("/") + 1).substring(0, 1).toUpperCase()
-						+ cropName.substring(cropName.lastIndexOf("/") + 1).substring(1)
-						+ " Farmer stopped!", Color.white);
+		BotUtils.sysMsg(
+				cropName.substring(cropName.lastIndexOf("/") + 1).substring(0, 1).toUpperCase()
+						+ cropName.substring(cropName.lastIndexOf("/") + 1).substring(1) + " Farmer stopped!",
+				Color.white);
 		gameui().map.wdgmsg("click", Coord.z, gameui().map.player().rc.floor(posres), 1, 0);
 		if (gameui().map.pfthread != null) {
 			gameui().map.pfthread.interrupt();

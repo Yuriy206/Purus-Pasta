@@ -23,7 +23,7 @@ import haven.Window;
 public class TrellisFarmer extends Window implements Runnable {
 
 	private Coord rc1, rc2;
-	
+
 	private ArrayList<Gob> crops = new ArrayList<Gob>();
 
 	private boolean stopThread = false;
@@ -99,7 +99,7 @@ public class TrellisFarmer extends Window implements Runnable {
 					return;
 
 				int stageBefore = g.getStage();
-				
+
 				// Right click the crop
 				BotUtils.doClick(g, 3, 0);
 
