@@ -30,13 +30,13 @@ import static haven.glsl.Cons.mul;
 import static haven.glsl.Type.VEC4;
 
 public class GLColorVary implements ShaderMacro {
-    public static final AutoVarying color = new AutoVarying(VEC4) {
-        protected Expression root(VertexContext vctx) {
-            return (vctx.gl_Color.ref());
-        }
-    };
+	public static final AutoVarying color = new AutoVarying(VEC4) {
+		protected Expression root(VertexContext vctx) {
+			return (vctx.gl_Color.ref());
+		}
+	};
 
-    public void modify(ProgramContext prog) {
-        prog.fctx.fragcol.mod(in -> mul(in, color.ref()), 0);
-    }
+	public void modify(ProgramContext prog) {
+		prog.fctx.fragcol.mod(in -> mul(in, color.ref()), 0);
+	}
 }

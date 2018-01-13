@@ -27,91 +27,92 @@
 package haven;
 
 public class Loading extends RuntimeException {
-    public final Loading rec;
+	public final Loading rec;
 
-    public Loading() {
-        super();
-        rec = null;
-    }
+	public Loading() {
+		super();
+		rec = null;
+	}
 
-    public Loading(String msg) {
-        super(msg);
-        rec = null;
-    }
+	public Loading(String msg) {
+		super(msg);
+		rec = null;
+	}
 
-    public Loading(Throwable cause) {
-        super(cause);
-        rec = null;
-    }
+	public Loading(Throwable cause) {
+		super(cause);
+		rec = null;
+	}
 
-    public Loading(String msg, Throwable cause) {
-        super(msg, cause);
-        rec = null;
-    }
+	public Loading(String msg, Throwable cause) {
+		super(msg, cause);
+		rec = null;
+	}
 
-    public Loading(Loading rec) {
-        super(rec);
-        this.rec = rec;
-    }
+	public Loading(Loading rec) {
+		super(rec);
+		this.rec = rec;
+	}
 
-    public Loading(String msg, Loading rec) {
-        super(msg, rec);
-        this.rec = rec;
-    }
+	public Loading(String msg, Loading rec) {
+		super(msg, rec);
+		this.rec = rec;
+	}
 
-    public String getMessage() {
-        if (rec != null)
-            return (rec.getMessage());
-        return (super.getMessage());
-    }
+	public String getMessage() {
+		if (rec != null)
+			return (rec.getMessage());
+		return (super.getMessage());
+	}
 
-    public boolean canwait() {
-        if (rec != null)
-            return (rec.canwait());
-        else
-            return (false);
-    }
+	public boolean canwait() {
+		if (rec != null)
+			return (rec.canwait());
+		else
+			return (false);
+	}
 
-    public void waitfor() throws InterruptedException {
-        if (rec != null) {
-            rec.waitfor();
-            return;
-        } else {
-            throw (new RuntimeException("Tried to wait for unwaitable event", this));
-        }
-    }
+	public void waitfor() throws InterruptedException {
+		if (rec != null) {
+			rec.waitfor();
+			return;
+		} else {
+			throw (new RuntimeException("Tried to wait for unwaitable event", this));
+		}
+	}
 
-    public static <T> T waitforint(Indir<T> x) throws InterruptedException {
-        while (true) {
-            try {
-                return (x.get());
-            } catch (Loading l) {
-                l.waitfor();
-            }
-        }
-    }
+	public static <T> T waitforint(Indir<T> x) throws InterruptedException {
+		while (true) {
+			try {
+				return (x.get());
+			} catch (Loading l) {
+				l.waitfor();
+			}
+		}
+	}
 
-    public static <T> T waitfor(Indir<T> x) {
-        boolean intd = false;
-        try {
-            while (true) {
-                try {
-                    return (waitforint(x));
-                } catch (InterruptedException e) {
-                    intd = true;
-                }
-            }
-        } finally {
-            if (intd)
-                Thread.currentThread().interrupt();
-        }
-    }
+	public static <T> T waitfor(Indir<T> x) {
+		boolean intd = false;
+		try {
+			while (true) {
+				try {
+					return (waitforint(x));
+				} catch (InterruptedException e) {
+					intd = true;
+				}
+			}
+		} finally {
+			if (intd)
+				Thread.currentThread().interrupt();
+		}
+	}
 
-    /*
-     * Shave some CPU cycles by disabling stacktraces. since it's not needed here
-     */
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
-    }
+	/*
+	 * Shave some CPU cycles by disabling stacktraces. since it's not needed
+	 * here
+	 */
+	@Override
+	public synchronized Throwable fillInStackTrace() {
+		return this;
+	}
 }

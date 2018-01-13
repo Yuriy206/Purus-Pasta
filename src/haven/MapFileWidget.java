@@ -52,410 +52,418 @@ import haven.MapFile.SMarker;
 import haven.MapFile.Segment;
 
 public class MapFileWidget extends Widget {
-    public final MapFile file;
-    public Location curloc;
-    private Locator setloc;
-    private boolean follow;
-    private Area dext;
-    private Segment dseg;
-    private DisplayGrid[] display;
-    private Collection<DisplayMarker> markers = null;
-    private int markerseq = -1;
-    private UI.Grab drag;
-    private boolean dragging;
-    private Coord dsc, dmc;
-    public static int zoom = 0;
-    private static final double[] scaleFactors = new double[]{1, 100 / 75.0, 100 / 50.0, 100 / 25.0, 100 / 15.0, 100 / 8.0};
+	public final MapFile file;
+	public Location curloc;
+	private Locator setloc;
+	private boolean follow;
+	private Area dext;
+	private Segment dseg;
+	private DisplayGrid[] display;
+	private Collection<DisplayMarker> markers = null;
+	private int markerseq = -1;
+	private UI.Grab drag;
+	private boolean dragging;
+	private Coord dsc, dmc;
+	public static int zoom = 0;
+	private static final double[] scaleFactors =
+			new double[] { 1, 100 / 75.0, 100 / 50.0, 100 / 25.0, 100 / 15.0, 100 / 8.0 };
 
-    public MapFileWidget(MapFile file, Coord sz) {
-        super();
-        this.file = file;
-    }
+	public MapFileWidget(MapFile file, Coord sz) {
+		super();
+		this.file = file;
+	}
 
-    public static class Location {
-        public final Segment seg;
-        public final Coord tc;
+	public static class Location {
+		public final Segment seg;
+		public final Coord tc;
 
-        public Location(Segment seg, Coord tc) {
-            Objects.requireNonNull(seg);
-            Objects.requireNonNull(tc);
-            this.seg = seg; this.tc = tc;
-        }
-    }
+		public Location(Segment seg, Coord tc) {
+			Objects.requireNonNull(seg);
+			Objects.requireNonNull(tc);
+			this.seg = seg;
+			this.tc = tc;
+		}
+	}
 
-    public interface Locator {
-        Location locate(MapFile file) throws Loading;
-    }
+	public interface Locator {
+		Location locate(MapFile file) throws Loading;
+	}
 
-    public static class MapLocator implements Locator {
-        public final MapView mv;
+	public static class MapLocator implements Locator {
+		public final MapView mv;
 
-        public MapLocator(MapView mv) {this.mv = mv;}
+		public MapLocator(MapView mv) {
+			this.mv = mv;
+		}
 
-        public Location locate(MapFile file) {
-            Coord mc = new Coord2d(mv.getcc()).floor(MCache.tilesz);
-            if(mc == null)
-                throw(new Loading("Waiting for initial location"));
-            MCache.Grid plg = mv.ui.sess.glob.map.getgrid(mc.div(cmaps));
-            GridInfo info = file.gridinfo.get(plg.id);
-            if(info == null)
-                throw(new Loading("No grid info, probably coming soon"));
-            Segment seg = file.segments.get(info.seg);
-            if(seg == null)
-                throw(new Loading("No segment info, probably coming soon"));
-            return(new Location(seg, info.sc.mul(cmaps.div(scalef())).add(mc.sub(plg.ul).div(scalef()))));
-        }
-    }
+		public Location locate(MapFile file) {
+			Coord mc = new Coord2d(mv.getcc()).floor(MCache.tilesz);
+			if (mc == null)
+				throw (new Loading("Waiting for initial location"));
+			MCache.Grid plg = mv.ui.sess.glob.map.getgrid(mc.div(cmaps));
+			GridInfo info = file.gridinfo.get(plg.id);
+			if (info == null)
+				throw (new Loading("No grid info, probably coming soon"));
+			Segment seg = file.segments.get(info.seg);
+			if (seg == null)
+				throw (new Loading("No segment info, probably coming soon"));
+			return (new Location(seg, info.sc.mul(cmaps.div(scalef())).add(mc.sub(plg.ul).div(scalef()))));
+		}
+	}
 
-    public static class SpecLocator implements Locator {
-        public final long seg;
-        public final Coord tc;
+	public static class SpecLocator implements Locator {
+		public final long seg;
+		public final Coord tc;
 
-        public SpecLocator(long seg, Coord tc) {this.seg = seg; this.tc = tc;}
+		public SpecLocator(long seg, Coord tc) {
+			this.seg = seg;
+			this.tc = tc;
+		}
 
-        public Location locate(MapFile file) {
-            Segment seg = file.segments.get(this.seg);
-            if(seg == null)
-                return(null);
-            return(new Location(seg, tc.div(scalef())));
-        }
-    }
+		public Location locate(MapFile file) {
+			Segment seg = file.segments.get(this.seg);
+			if (seg == null)
+				return (null);
+			return (new Location(seg, tc.div(scalef())));
+		}
+	}
 
-    public void center(Location loc) {
-        curloc = loc;
-    }
+	public void center(Location loc) {
+		curloc = loc;
+	}
 
-    public Location resolve(Locator loc) {
-        if(!file.lock.readLock().tryLock())
-            throw(new Loading("Map file is busy"));
-        try {
-            return(loc.locate(file));
-        } finally {
-            file.lock.readLock().unlock();
-        }
-    }
+	public Location resolve(Locator loc) {
+		if (!file.lock.readLock().tryLock())
+			throw (new Loading("Map file is busy"));
+		try {
+			return (loc.locate(file));
+		} finally {
+			file.lock.readLock().unlock();
+		}
+	}
 
-    public void tick(double dt) {
-        if(setloc != null) {
-            try {
-                Location loc = resolve(setloc);
-                center(loc);
-                if(!follow)
-                    setloc = null;
-            } catch(Loading l) {
-            }
-        }
-    }
+	public void tick(double dt) {
+		if (setloc != null) {
+			try {
+				Location loc = resolve(setloc);
+				center(loc);
+				if (!follow)
+					setloc = null;
+			} catch (Loading l) {
+			}
+		}
+	}
 
-    public static class DisplayGrid {
-        public final Segment seg;
-        public final Coord sc;
-        public final Indir<Grid> gref;
-        private Grid cgrid = null;
-        private Defer.Future<Tex> img = null;
+	public static class DisplayGrid {
+		public final Segment seg;
+		public final Coord sc;
+		public final Indir<Grid> gref;
+		private Grid cgrid = null;
+		private Defer.Future<Tex> img = null;
 
-        public DisplayGrid(Segment seg, Coord sc, Indir<Grid> gref) {
-            this.seg = seg;
-            this.sc = sc;
-            this.gref = gref;
-        }
+		public DisplayGrid(Segment seg, Coord sc, Indir<Grid> gref) {
+			this.seg = seg;
+			this.sc = sc;
+			this.gref = gref;
+		}
 
-        public Tex img() {
-            Grid grid = gref.get();
-            if(grid != cgrid) {
-                if(img != null)
-                    img.cancel();
-                img = Defer.later(() -> new TexI(grid.render(sc.mul(cmaps.div(scalef())))));
-                cgrid = grid;
-            }
-            return((img == null)?null:img.get());
-        }
-    }
+		public Tex img() {
+			Grid grid = gref.get();
+			if (grid != cgrid) {
+				if (img != null)
+					img.cancel();
+				img = Defer.later(() -> new TexI(grid.render(sc.mul(cmaps.div(scalef())))));
+				cgrid = grid;
+			}
+			return ((img == null) ? null : img.get());
+		}
+	}
 
-    public static class DisplayMarker {
-        public static final Resource.Image flagbg, flagfg;
-        public static final Coord flagcc;
-        public final Marker m;
-        public final Text tip;
-        public Area hit;
-        private Resource.Image img;
-        private Coord cc;
+	public static class DisplayMarker {
+		public static final Resource.Image flagbg, flagfg;
+		public static final Coord flagcc;
+		public final Marker m;
+		public final Text tip;
+		public Area hit;
+		private Resource.Image img;
+		private Coord cc;
 
-        static {
-            Resource flag = Resource.local().loadwait("gfx/hud/mmap/flag");
-            flagbg = flag.layer(Resource.imgc, 1);
-            flagfg = flag.layer(Resource.imgc, 0);
-            flagcc = flag.layer(Resource.negc).cc;
-        }
+		static {
+			Resource flag = Resource.local().loadwait("gfx/hud/mmap/flag");
+			flagbg = flag.layer(Resource.imgc, 1);
+			flagfg = flag.layer(Resource.imgc, 0);
+			flagcc = flag.layer(Resource.negc).cc;
+		}
 
-        public DisplayMarker(Marker marker) {
-            this.m = marker;
-            this.tip = Text.render(m.nm);
-            if(marker instanceof PMarker)
-                this.hit = Area.sized(flagcc.inv(), flagbg.sz);
-        }
+		public DisplayMarker(Marker marker) {
+			this.m = marker;
+			this.tip = Text.render(m.nm);
+			if (marker instanceof PMarker)
+				this.hit = Area.sized(flagcc.inv(), flagbg.sz);
+		}
 
-        public void draw(GOut g, Coord c) {
-            if(m instanceof PMarker) {
-                Coord ul = c.sub(flagcc);
-                g.chcolor(((PMarker)m).color);
-                g.image(flagfg, ul);
-                g.chcolor();
-                g.image(flagbg, ul);
-            } else if(m instanceof SMarker) {
-                SMarker sm = (SMarker)m;
-                try {
-                    if(cc == null) {
-                        Resource res = MapFile.loadsaved(Resource.remote(), sm.res);
-                        img = res.layer(Resource.imgc);
-                        Resource.Neg neg = res.layer(Resource.negc);
-                        cc = (neg != null)?neg.cc:img.sz.div(2);
-                        if(hit == null)
-                            hit = Area.sized(cc.inv(), img.sz);
-                    }
-                } catch(Loading l) {
-                } catch(Exception e) {
-                    cc = Coord.z;
-                }
-                if(img != null)
-                    g.image(img, c.sub(cc));
-            }
-        }
-    }
+		public void draw(GOut g, Coord c) {
+			if (m instanceof PMarker) {
+				Coord ul = c.sub(flagcc);
+				g.chcolor(((PMarker) m).color);
+				g.image(flagfg, ul);
+				g.chcolor();
+				g.image(flagbg, ul);
+			} else if (m instanceof SMarker) {
+				SMarker sm = (SMarker) m;
+				try {
+					if (cc == null) {
+						Resource res = MapFile.loadsaved(Resource.remote(), sm.res);
+						img = res.layer(Resource.imgc);
+						Resource.Neg neg = res.layer(Resource.negc);
+						cc = (neg != null) ? neg.cc : img.sz.div(2);
+						if (hit == null)
+							hit = Area.sized(cc.inv(), img.sz);
+					}
+				} catch (Loading l) {
+				} catch (Exception e) {
+					cc = Coord.z;
+				}
+				if (img != null)
+					g.image(img, c.sub(cc));
+			}
+		}
+	}
 
-    private void remark(Location loc, Area ext) {
-        if(file.lock.readLock().tryLock()) {
-            try {
-                Collection<DisplayMarker> marks = new ArrayList<>();
-                Area mext = ext.margin(cmaps);
-                for(Marker mark : file.markers) {
-                    if((mark.seg == loc.seg.id) && mext.contains(mark.tc.div(cmaps)))
-                        marks.add(new DisplayMarker(mark));
-                }
-                markers = marks;
-                markerseq = file.markerseq;
-            } finally {
-                file.lock.readLock().unlock();
-            }
-        }
-    }
+	private void remark(Location loc, Area ext) {
+		if (file.lock.readLock().tryLock()) {
+			try {
+				Collection<DisplayMarker> marks = new ArrayList<>();
+				Area mext = ext.margin(cmaps);
+				for (Marker mark : file.markers) {
+					if ((mark.seg == loc.seg.id) && mext.contains(mark.tc.div(cmaps)))
+						marks.add(new DisplayMarker(mark));
+				}
+				markers = marks;
+				markerseq = file.markerseq;
+			} finally {
+				file.lock.readLock().unlock();
+			}
+		}
+	}
 
-    private void redisplay(Location loc) {
-        Coord hsz = sz.div(2);
-        Area next = Area.sized(loc.tc.sub(hsz).div(cmaps.div(scalef())),
-                sz.add(cmaps.div(scalef())).sub(1, 1).div(cmaps.div(scalef())).add(1, 1));
-        if((display == null) || (loc.seg != dseg) || !next.equals(dext)) {
-            DisplayGrid[] nd = new DisplayGrid[next.rsz()];
-            if((display != null) && (loc.seg == dseg)) {
-                for(Coord c : dext) {
-                    if(next.contains(c))
-                        nd[next.ri(c)] = display[dext.ri(c)];
-                }
-            }
-            display = nd;
-            dseg = loc.seg;
-            dext = next;
-            markers = null;
-        }
-    }
+	private void redisplay(Location loc) {
+		Coord hsz = sz.div(2);
+		Area next = Area.sized(loc.tc.sub(hsz).div(cmaps.div(scalef())),
+				sz.add(cmaps.div(scalef())).sub(1, 1).div(cmaps.div(scalef())).add(1, 1));
+		if ((display == null) || (loc.seg != dseg) || !next.equals(dext)) {
+			DisplayGrid[] nd = new DisplayGrid[next.rsz()];
+			if ((display != null) && (loc.seg == dseg)) {
+				for (Coord c : dext) {
+					if (next.contains(c))
+						nd[next.ri(c)] = display[dext.ri(c)];
+				}
+			}
+			display = nd;
+			dseg = loc.seg;
+			dext = next;
+			markers = null;
+		}
+	}
 
-    public Coord xlate(Location loc) {
-        Location curloc = this.curloc;
-        if((curloc == null) || (curloc.seg != loc.seg))
-            return(null);
-        return(loc.tc.add(sz.div(2)).sub(curloc.tc));
-    }
+	public Coord xlate(Location loc) {
+		Location curloc = this.curloc;
+		if ((curloc == null) || (curloc.seg != loc.seg))
+			return (null);
+		return (loc.tc.add(sz.div(2)).sub(curloc.tc));
+	}
 
-    public void draw(GOut g) {
-        Location loc = this.curloc;
-        if(loc == null)
-            return;
-        Coord hsz = sz.div(2);
-        redisplay(loc);
-        if(file.lock.readLock().tryLock()) {
-            try {
-                for(Coord c : dext) {
-                    if(display[dext.ri(c)] == null)
-                        display[dext.ri(c)] = new DisplayGrid(loc.seg, c, loc.seg.grid(c));
-                }
-            } finally {
-                file.lock.readLock().unlock();
-            }
-        }
-        for(Coord c : dext) {
-            Tex img;
-            try {
-                DisplayGrid disp = display[dext.ri(c)];
-                if((disp == null) || ((img = disp.img()) == null))
-                    continue;
-            } catch(Loading l) {
-                continue;
-            }
-            Coord ul = hsz.add(c.mul(cmaps.div(scalef()))).sub(loc.tc);
-            g.image(img, ul, cmaps.div(scalef()));
-        }
-        if((markers == null) || (file.markerseq != markerseq))
-            remark(loc, dext);
-        if(markers != null) {
-            for(DisplayMarker mark : markers) {
-                mark.draw(g, hsz.sub(loc.tc).add(mark.m.tc.div(scalef())));
-            }
-        }
-    }
+	public void draw(GOut g) {
+		Location loc = this.curloc;
+		if (loc == null)
+			return;
+		Coord hsz = sz.div(2);
+		redisplay(loc);
+		if (file.lock.readLock().tryLock()) {
+			try {
+				for (Coord c : dext) {
+					if (display[dext.ri(c)] == null)
+						display[dext.ri(c)] = new DisplayGrid(loc.seg, c, loc.seg.grid(c));
+				}
+			} finally {
+				file.lock.readLock().unlock();
+			}
+		}
+		for (Coord c : dext) {
+			Tex img;
+			try {
+				DisplayGrid disp = display[dext.ri(c)];
+				if ((disp == null) || ((img = disp.img()) == null))
+					continue;
+			} catch (Loading l) {
+				continue;
+			}
+			Coord ul = hsz.add(c.mul(cmaps.div(scalef()))).sub(loc.tc);
+			g.image(img, ul, cmaps.div(scalef()));
+		}
+		if ((markers == null) || (file.markerseq != markerseq))
+			remark(loc, dext);
+		if (markers != null) {
+			for (DisplayMarker mark : markers) {
+				mark.draw(g, hsz.sub(loc.tc).add(mark.m.tc.div(scalef())));
+			}
+		}
+	}
 
-    public void dumpTiles() {
-        gameui().msg("Dumping map. Please wait...");
+	public void dumpTiles() {
+		gameui().msg("Dumping map. Please wait...");
 
-        Location loc = this.curloc;
-        if (loc == null)
-            return;
+		Location loc = this.curloc;
+		if (loc == null)
+			return;
 
-        LinkedList<DisplayGrid> grids = new LinkedList<>();
-        if(file.lock.readLock().tryLock()) {
-            try {
-                for (Map.Entry<Coord, Long> entry: loc.seg.map.entrySet())
-                    grids.add(new DisplayGrid(loc.seg, entry.getKey(), loc.seg.grid(entry.getKey())));
-            } finally {
-                file.lock.readLock().unlock();
-            }
-        }
+		LinkedList<DisplayGrid> grids = new LinkedList<>();
+		if (file.lock.readLock().tryLock()) {
+			try {
+				for (Map.Entry<Coord, Long> entry : loc.seg.map.entrySet())
+					grids.add(new DisplayGrid(loc.seg, entry.getKey(), loc.seg.grid(entry.getKey())));
+			} finally {
+				file.lock.readLock().unlock();
+			}
+		}
 
-        String session = (new SimpleDateFormat("yyyy-MM-dd HH.mm.ss")).format(new Date(System.currentTimeMillis()));
-        (new File("map/" + session)).mkdirs();
+		String session = (new SimpleDateFormat("yyyy-MM-dd HH.mm.ss")).format(new Date(System.currentTimeMillis()));
+		(new File("map/" + session)).mkdirs();
 
-        int c = 50;
+		int c = 50;
 
-        BufferedWriter ids = null;
-        try {
-            ids = new BufferedWriter(new FileWriter(String.format("map/%s/ids.txt", session), true));
+		BufferedWriter ids = null;
+		try {
+			ids = new BufferedWriter(new FileWriter(String.format("map/%s/ids.txt", session), true));
 
-            while (grids.size() > 0) {
-                // just a fail-safe
-                if (c-- == 0) {
-                    gameui().error("WARNING: map dumper timed out");
-                    break;
-                }
+			while (grids.size() > 0) {
+				// just a fail-safe
+				if (c-- == 0) {
+					gameui().error("WARNING: map dumper timed out");
+					break;
+				}
 
-                ListIterator<DisplayGrid> iter = grids.listIterator();
-                while (iter.hasNext()) {
-                    DisplayGrid disp = iter.next();
-                    try {
-                        Grid grid = disp.gref.get();
-                        if (grid != null) {
-                            BufferedImage img = grid.render(disp.sc.mul(cmaps));
-                            File tilefile = new File(String.format("map/%s/tile_%d_%d.png", session, disp.sc.x, disp.sc.y));
-                            ImageIO.write(img, "png", tilefile);
-                            ids.write(String.format("%d,%d,%d\n", disp.sc.x, disp.sc.y, grid.id));
-                        } else {
-                            continue;
-                        }
-                    } catch (Loading l) {
-                        continue;
-                    }
-                    iter.remove();
-                }
-            }
-        } catch (IOException e) {
-            gameui().error("ERROR: map dumper failure. See console for more info.");
-            e.printStackTrace();
-            return;
-        } finally {
-            if (ids != null) {
-                try {
-                    ids.close();
-                } catch (IOException e) {
-                }
-            }
-        }
+				ListIterator<DisplayGrid> iter = grids.listIterator();
+				while (iter.hasNext()) {
+					DisplayGrid disp = iter.next();
+					try {
+						Grid grid = disp.gref.get();
+						if (grid != null) {
+							BufferedImage img = grid.render(disp.sc.mul(cmaps));
+							File tilefile =
+									new File(String.format("map/%s/tile_%d_%d.png", session, disp.sc.x, disp.sc.y));
+							ImageIO.write(img, "png", tilefile);
+							ids.write(String.format("%d,%d,%d\n", disp.sc.x, disp.sc.y, grid.id));
+						} else {
+							continue;
+						}
+					} catch (Loading l) {
+						continue;
+					}
+					iter.remove();
+				}
+			}
+		} catch (IOException e) {
+			gameui().error("ERROR: map dumper failure. See console for more info.");
+			e.printStackTrace();
+			return;
+		} finally {
+			if (ids != null) {
+				try {
+					ids.close();
+				} catch (IOException e) {
+				}
+			}
+		}
 
-        gameui().msg("Finished dumping map");
-    }
+		gameui().msg("Finished dumping map");
+	}
 
-    public void center(Locator loc) {
-        setloc = loc;
-        follow = false;
-    }
+	public void center(Locator loc) {
+		setloc = loc;
+		follow = false;
+	}
 
-    public void follow(Locator loc) {
-        setloc = loc;
-        follow = true;
-    }
+	public void follow(Locator loc) {
+		setloc = loc;
+		follow = true;
+	}
 
-    public boolean clickloc(Location loc, int button) {
-        return(false);
-    }
+	public boolean clickloc(Location loc, int button) {
+		return (false);
+	}
 
-    public boolean clickmarker(DisplayMarker mark, int button) {
-        return(false);
-    }
+	public boolean clickmarker(DisplayMarker mark, int button) {
+		return (false);
+	}
 
-    private DisplayMarker markerat(Coord tc) {
-        if(markers != null) {
-            for(DisplayMarker mark : markers) {
-                if((mark.hit != null) && mark.hit.contains(tc.sub(mark.m.tc.div(scalef()))))
-                    return(mark);
-            }
-        }
-        return(null);
-    }
+	private DisplayMarker markerat(Coord tc) {
+		if (markers != null) {
+			for (DisplayMarker mark : markers) {
+				if ((mark.hit != null) && mark.hit.contains(tc.sub(mark.m.tc.div(scalef()))))
+					return (mark);
+			}
+		}
+		return (null);
+	}
 
-    public boolean mousedown(Coord c, int button) {
-        Coord tc = null;
-        if(curloc != null)
-            tc = c.sub(sz.div(2)).add(curloc.tc);
-        if(tc != null) {
-            DisplayMarker mark = markerat(tc);
-            if((mark != null) && clickmarker(mark, button))
-                return(true);
-            if(clickloc(new Location(curloc.seg, tc.mul(scalef())), button))
-                return(true);
-        }
-        if(button == 1) {
-            Location loc = curloc;
-            if((drag == null) && (loc != null)) {
-                drag = ui.grabmouse(this);
-                dsc = c;
-                dmc = loc.tc;
-                dragging = false;
-            }
-            return(true);
-        }
-        return(super.mousedown(c, button));
-    }
+	public boolean mousedown(Coord c, int button) {
+		Coord tc = null;
+		if (curloc != null)
+			tc = c.sub(sz.div(2)).add(curloc.tc);
+		if (tc != null) {
+			DisplayMarker mark = markerat(tc);
+			if ((mark != null) && clickmarker(mark, button))
+				return (true);
+			if (clickloc(new Location(curloc.seg, tc.mul(scalef())), button))
+				return (true);
+		}
+		if (button == 1) {
+			Location loc = curloc;
+			if ((drag == null) && (loc != null)) {
+				drag = ui.grabmouse(this);
+				dsc = c;
+				dmc = loc.tc;
+				dragging = false;
+			}
+			return (true);
+		}
+		return (super.mousedown(c, button));
+	}
 
-    public void mousemove(Coord c) {
-        if(drag != null) {
-            if(dragging) {
-                setloc = null;
-                follow = false;
-                curloc = new Location(curloc.seg, dmc.add(dsc.sub(c)));
-            } else if(c.dist(dsc) > 5) {
-                dragging = true;
-            }
-        }
-        super.mousemove(c);
-    }
+	public void mousemove(Coord c) {
+		if (drag != null) {
+			if (dragging) {
+				setloc = null;
+				follow = false;
+				curloc = new Location(curloc.seg, dmc.add(dsc.sub(c)));
+			} else if (c.dist(dsc) > 5) {
+				dragging = true;
+			}
+		}
+		super.mousemove(c);
+	}
 
-    public boolean mouseup(Coord c, int button) {
-        if((drag != null) && (button == 1)) {
-            drag.remove();
-            drag = null;
-        }
-        return(super.mouseup(c, button));
-    }
+	public boolean mouseup(Coord c, int button) {
+		if ((drag != null) && (button == 1)) {
+			drag.remove();
+			drag = null;
+		}
+		return (super.mouseup(c, button));
+	}
 
-    public Object tooltip(Coord c, Widget prev) {
-        if(curloc != null) {
-            Coord tc = c.sub(sz.div(2)).add(curloc.tc);
-            DisplayMarker mark = markerat(tc);
-            if(mark != null) {
-                return(mark.tip);
-            }
-        }
-        return(super.tooltip(c, prev));
-    }
+	public Object tooltip(Coord c, Widget prev) {
+		if (curloc != null) {
+			Coord tc = c.sub(sz.div(2)).add(curloc.tc);
+			DisplayMarker mark = markerat(tc);
+			if (mark != null) {
+				return (mark.tip);
+			}
+		}
+		return (super.tooltip(c, prev));
+	}
 
-    public static double scalef() {
-        return scaleFactors[zoom];
-    }
+	public static double scalef() {
+		return scaleFactors[zoom];
+	}
 }

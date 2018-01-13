@@ -34,29 +34,29 @@ import java.util.Map;
 import java.util.Set;
 
 public class Context {
-    public final Map<Symbol, String> symtab = new HashMap<Symbol, String>();
-    public final Map<String, Symbol> rsymtab = new HashMap<String, Symbol>();
-    public int symgen = 1;
-    public List<Toplevel> vardefs = new LinkedList<Toplevel>();
-    public List<Toplevel> fundefs = new LinkedList<Toplevel>();
-    public Set<String> exts = new HashSet<String>();
+	public final Map<Symbol, String> symtab = new HashMap<Symbol, String>();
+	public final Map<String, Symbol> rsymtab = new HashMap<String, Symbol>();
+	public int symgen = 1;
+	public List<Toplevel> vardefs = new LinkedList<Toplevel>();
+	public List<Toplevel> fundefs = new LinkedList<Toplevel>();
+	public Set<String> exts = new HashSet<String>();
 
-    public void walk(Walker w) {
-        for (Toplevel el : vardefs)
-            w.el(el);
-        for (Toplevel el : fundefs)
-            w.el(el);
-    }
+	public void walk(Walker w) {
+		for (Toplevel el : vardefs)
+			w.el(el);
+		for (Toplevel el : fundefs)
+			w.el(el);
+	}
 
-    public void output(Output out) {
-        out.write("#version 120\n\n");
-        for (String ext : exts)
-            out.write("#extension " + ext + ": require\n");
-        for (Toplevel tl : vardefs)
-            tl.output(out);
-        if (!vardefs.isEmpty())
-            out.write("\n");
-        for (Toplevel tl : fundefs)
-            tl.output(out);
-    }
+	public void output(Output out) {
+		out.write("#version 120\n\n");
+		for (String ext : exts)
+			out.write("#extension " + ext + ": require\n");
+		for (Toplevel tl : vardefs)
+			tl.output(out);
+		if (!vardefs.isEmpty())
+			out.write("\n");
+		for (Toplevel tl : fundefs)
+			tl.output(out);
+	}
 }

@@ -27,22 +27,22 @@
 package haven;
 
 public class Pair<A, B> {
-    public final A a;
-    public final B b;
+	public final A a;
+	public final B b;
 
-    public Pair(A a, B b) {
-        this.a = a;
-        this.b = b;
-    }
+	public Pair(A a, B b) {
+		this.a = a;
+		this.b = b;
+	}
 
-    public int hashCode() {
-        return ((((a == null) ? 0 : a.hashCode()) * 31) + ((b == null) ? 0 : b.hashCode()));
-    }
+	public int hashCode() {
+		return ((((a == null) ? 0 : a.hashCode()) * 31) + ((b == null) ? 0 : b.hashCode()));
+	}
 
-    public boolean equals(Object O) {
-        if (!(O instanceof Pair))
-            return (false);
-        Pair o = (Pair<?, ?>) O;
-        return (a.equals(o.a) && b.equals(o.b));
-    }
+	public boolean equals(Object O) {
+		if (!(O instanceof Pair))
+			return (false);
+		Pair o = (Pair<?, ?>) O;
+		return (a.equals(o.a) && b.equals(o.b));
+	}
 }

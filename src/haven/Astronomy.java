@@ -29,15 +29,15 @@ package haven;
 import java.awt.Color;
 
 public class Astronomy {
-    public final double dt, mp, yt;
-    public final boolean night;
-    public final Color mc;
-	
-    public Astronomy(double dt, double mp, double yt, boolean night, Color mc) {
-	this.dt = dt;
-	this.mp = mp;
-	this.yt = yt;
-	this.night = night;
-	this.mc = mc;
-    }
+	public final double dt, mp, yt;
+	public final boolean night;
+	public final Color mc;
+
+	public Astronomy(double dt, double mp, double yt, boolean night, Color mc) {
+		this.dt = dt;
+		this.mp = mp;
+		this.yt = yt;
+		this.night = night;
+		this.mc = mc;
+	}
 }

@@ -27,26 +27,26 @@
 package haven.glsl;
 
 public class Mul extends Expression {
-    public final Expression[] terms;
+	public final Expression[] terms;
 
-    public Mul(Expression... terms) {
-        if (terms.length < 1)
-            throw (new RuntimeException("Must have more than zero terms"));
-        this.terms = terms;
-    }
+	public Mul(Expression... terms) {
+		if (terms.length < 1)
+			throw (new RuntimeException("Must have more than zero terms"));
+		this.terms = terms;
+	}
 
-    public void walk(Walker w) {
-        for (Expression term : terms)
-            w.el(term);
-    }
+	public void walk(Walker w) {
+		for (Expression term : terms)
+			w.el(term);
+	}
 
-    public void output(Output out) {
-        out.write("(");
-        terms[0].output(out);
-        for (int i = 1; i < terms.length; i++) {
-            out.write(" * ");
-            terms[i].output(out);
-        }
-        out.write(")");
-    }
+	public void output(Output out) {
+		out.write("(");
+		terms[0].output(out);
+		for (int i = 1; i < terms.length; i++) {
+			out.write(" * ");
+			terms[i].output(out);
+		}
+		out.write(")");
+	}
 }

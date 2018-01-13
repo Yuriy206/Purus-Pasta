@@ -27,32 +27,32 @@
 package haven.glsl;
 
 public abstract class PreOp extends Expression {
-    public final Expression op;
+	public final Expression op;
 
-    public PreOp(Expression op) {
-        this.op = op;
-    }
+	public PreOp(Expression op) {
+		this.op = op;
+	}
 
-    public void walk(Walker w) {
-        w.el(op);
-    }
+	public void walk(Walker w) {
+		w.el(op);
+	}
 
-    public abstract String form();
+	public abstract String form();
 
-    public void output(Output out) {
-        out.write("(");
-        out.write(form());
-        op.output(out);
-        out.write(")");
-    }
+	public void output(Output out) {
+		out.write("(");
+		out.write(form());
+		op.output(out);
+		out.write(")");
+	}
 
-    public static class Neg extends PreOp {
-        public String form() {
-            return ("-");
-        }
+	public static class Neg extends PreOp {
+		public String form() {
+			return ("-");
+		}
 
-        public Neg(Expression op) {
-            super(op);
-        }
-    }
+		public Neg(Expression op) {
+			super(op);
+		}
+	}
 }

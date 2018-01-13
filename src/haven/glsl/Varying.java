@@ -27,44 +27,45 @@
 package haven.glsl;
 
 public class Varying extends Variable.Global {
-    public static enum Interpol {
-        NORMAL, FLAT, NOPERSPECTIVE, CENTROID
-    }
+	public static enum Interpol {
+		NORMAL, FLAT, NOPERSPECTIVE, CENTROID
+	}
 
-    ;
-    public Interpol ipol = Interpol.NORMAL;
+	;
 
-    protected Interpol ipol(Context ctx) {
-        return (ipol);
-    }
+	public Interpol ipol = Interpol.NORMAL;
 
-    public Varying(Type type, Symbol name) {
-        super(type, name);
-    }
+	protected Interpol ipol(Context ctx) {
+		return (ipol);
+	}
 
-    private class Def extends Definition {
-        public void output(Output out) {
-            switch (ipol(out.ctx)) {
-                case FLAT: {
-                    out.write("flat ");
-                    break;
-                }
-                case NOPERSPECTIVE: {
-                    out.write("noperspective ");
-                    break;
-                }
-                case CENTROID: {
-                    out.write("centroid ");
-                    break;
-                }
-            }
-            out.write("varying ");
-            super.output(out);
-        }
-    }
+	public Varying(Type type, Symbol name) {
+		super(type, name);
+	}
 
-    public void use(Context ctx) {
-        if (!defined(ctx))
-            ctx.vardefs.add(new Def());
-    }
+	private class Def extends Definition {
+		public void output(Output out) {
+			switch (ipol(out.ctx)) {
+			case FLAT: {
+				out.write("flat ");
+				break;
+			}
+			case NOPERSPECTIVE: {
+				out.write("noperspective ");
+				break;
+			}
+			case CENTROID: {
+				out.write("centroid ");
+				break;
+			}
+			}
+			out.write("varying ");
+			super.output(out);
+		}
+	}
+
+	public void use(Context ctx) {
+		if (!defined(ctx))
+			ctx.vardefs.add(new Def());
+	}
 }

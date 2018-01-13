@@ -35,100 +35,101 @@ import java.util.Queue;
 import haven.Config;
 
 public class ErrorHandler extends ThreadGroup {
-    private final ThreadGroup initial;
-    private Map<String, Object> props = new HashMap<String, Object>();
-    private Reporter reporter;
+	private final ThreadGroup initial;
+	private Map<String, Object> props = new HashMap<String, Object>();
+	private Reporter reporter;
 
-    public static ErrorHandler find() {
-        for (ThreadGroup tg = Thread.currentThread().getThreadGroup(); tg != null; tg = tg.getParent()) {
-            if (tg instanceof ErrorHandler)
-                return ((ErrorHandler) tg);
-        }
-        return (null);
-    }
+	public static ErrorHandler find() {
+		for (ThreadGroup tg = Thread.currentThread().getThreadGroup(); tg != null; tg = tg.getParent()) {
+			if (tg instanceof ErrorHandler)
+				return ((ErrorHandler) tg);
+		}
+		return (null);
+	}
 
-    public void lsetprop(String key, Object val) {
-        props.put(key, val);
-    }
+	public void lsetprop(String key, Object val) {
+		props.put(key, val);
+	}
 
-    private class Reporter extends Thread {
-        private Queue<Report> errors = new LinkedList<Report>();
-        private ErrorStatus status;
+	private class Reporter extends Thread {
+		private Queue<Report> errors = new LinkedList<Report>();
+		private ErrorStatus status;
 
-        public Reporter(ErrorStatus status) {
-            super(initial, "Error reporter");
-            setDaemon(true);
-            this.status = status;
-        }
+		public Reporter(ErrorStatus status) {
+			super(initial, "Error reporter");
+			setDaemon(true);
+			this.status = status;
+		}
 
-        public void run() {
-            while (true) {
-                synchronized (errors) {
-                    try {
-                        errors.wait();
-                    } catch (InterruptedException e) {
-                        return;
-                    }
-                    Report r;
-                    while ((r = errors.poll()) != null) {
-                        try {
-                            doreport(r);
-                        } catch (Exception e) {
-                        }
-                    }
-                }
-            }
-        }
+		public void run() {
+			while (true) {
+				synchronized (errors) {
+					try {
+						errors.wait();
+					} catch (InterruptedException e) {
+						return;
+					}
+					Report r;
+					while ((r = errors.poll()) != null) {
+						try {
+							doreport(r);
+						} catch (Exception e) {
+						}
+					}
+				}
+			}
+		}
 
-        private void doreport(Report r) throws IOException {
-            if (!status.goterror(r))
-                return;
-            status.done(null, null);
-        }
+		private void doreport(Report r) throws IOException {
+			if (!status.goterror(r))
+				return;
+			status.done(null, null);
+		}
 
-        public void report(Throwable t) {
-            Report r = new Report(t);
-            r.props.putAll(props);
-            synchronized (errors) {
-                errors.add(r);
-                errors.notifyAll();
-            }
-            try {
-                r.join();
-            } catch (InterruptedException e) { /* XXX? */ }
-        }
-    }
+		public void report(Throwable t) {
+			Report r = new Report(t);
+			r.props.putAll(props);
+			synchronized (errors) {
+				errors.add(r);
+				errors.notifyAll();
+			}
+			try {
+				r.join();
+			} catch (InterruptedException e) {
+				/* XXX? */ }
+		}
+	}
 
-    private void defprops() {
-        String os = System.getProperty("os.name");
-        String osVer = System.getProperty("os.version");
-        String osArch;
-        if (Config.iswindows)
-            osArch = (System.getenv("ProgramFiles(x86)") != null) ? " x64" : " x86";
-        else
-            osArch = ""; // ignore on Linux
-        props.put("os", os + " " + osVer + osArch);
+	private void defprops() {
+		String os = System.getProperty("os.name");
+		String osVer = System.getProperty("os.version");
+		String osArch;
+		if (Config.iswindows)
+			osArch = (System.getenv("ProgramFiles(x86)") != null) ? " x64" : " x86";
+		else
+			osArch = ""; // ignore on Linux
+		props.put("os", os + " " + osVer + osArch);
 
-        props.put("java", System.getProperty("java.version") + " " + System.getProperty("os.arch"));
-    }
+		props.put("java", System.getProperty("java.version") + " " + System.getProperty("os.arch"));
+	}
 
-    public ErrorHandler(ErrorStatus ui) {
-        super("Haven client");
-        initial = Thread.currentThread().getThreadGroup();
-        reporter = new Reporter(ui);
-        reporter.start();
-        defprops();
-    }
+	public ErrorHandler(ErrorStatus ui) {
+		super("Haven client");
+		initial = Thread.currentThread().getThreadGroup();
+		reporter = new Reporter(ui);
+		reporter.start();
+		defprops();
+	}
 
-    public ErrorHandler() {
-        this(new ErrorStatus.Simple());
-    }
+	public ErrorHandler() {
+		this(new ErrorStatus.Simple());
+	}
 
-    public void sethandler(ErrorStatus handler) {
-        reporter.status = handler;
-    }
+	public void sethandler(ErrorStatus handler) {
+		reporter.status = handler;
+	}
 
-    public void uncaughtException(Thread t, Throwable e) {
-        reporter.report(e);
-    }
+	public void uncaughtException(Thread t, Throwable e) {
+		reporter.report(e);
+	}
 }

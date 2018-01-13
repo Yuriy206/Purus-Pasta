@@ -27,41 +27,41 @@
 package haven;
 
 public class Homing extends Moving {
-    public long tgt;
-    public Coord2d tc;
-    public double v, dist;
+	public long tgt;
+	public Coord2d tc;
+	public double v, dist;
 
-    public Homing(Gob gob, long tgt, Coord2d tc, double v) {
-        super(gob);
-        this.tgt = tgt;
-        this.tc = tc;
-        this.v = v;
-    }
+	public Homing(Gob gob, long tgt, Coord2d tc, double v) {
+		super(gob);
+		this.tgt = tgt;
+		this.tc = tc;
+		this.v = v;
+	}
 
-    public Coord3f getc() {
-        Coord2d rc = gob.rc;
-        Coord2d tc = this.tc;
-        Gob tgt = gob.glob.oc.getgob(this.tgt);
-        if(tgt != null)
-            tc = tgt.rc;
-        Coord2d d = tc.sub(rc);
-        double e = d.abs();
-        if(dist > e)
-            rc = tc;
-        else if(e > 0.00001)
-            rc = rc.add(d.mul(dist / e));
-        return(gob.glob.map.getzp(rc));
-    }
+	public Coord3f getc() {
+		Coord2d rc = gob.rc;
+		Coord2d tc = this.tc;
+		Gob tgt = gob.glob.oc.getgob(this.tgt);
+		if (tgt != null)
+			tc = tgt.rc;
+		Coord2d d = tc.sub(rc);
+		double e = d.abs();
+		if (dist > e)
+			rc = tc;
+		else if (e > 0.00001)
+			rc = rc.add(d.mul(dist / e));
+		return (gob.glob.map.getzp(rc));
+	}
 
-    public double getv() {
-        return(v);
-    }
+	public double getv() {
+		return (v);
+	}
 
-    public void move(Coord2d c) {
-        dist = 0;
-    }
+	public void move(Coord2d c) {
+		dist = 0;
+	}
 
-    public void ctick(int dt) {
-        dist += v * ((dt / 1000.0) * 0.9);
-    }
+	public void ctick(int dt) {
+		dist += v * ((dt / 1000.0) * 0.9);
+	}
 }

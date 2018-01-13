@@ -32,27 +32,27 @@ import java.awt.Graphics;
  * This is old and should be deprecated.
  */
 public class SSWidget extends Widget {
-    private TexIM surf;
+	private TexIM surf;
 
-    public SSWidget(Coord sz) {
-        super(sz);
-        surf = new TexIM(sz);
-    }
+	public SSWidget(Coord sz) {
+		super(sz);
+		surf = new TexIM(sz);
+	}
 
-    public void draw(GOut g) {
-        g.image(surf, Coord.z);
-    }
+	public void draw(GOut g) {
+		g.image(surf, Coord.z);
+	}
 
-    public Graphics graphics() {
-        Graphics g = surf.graphics();
-        return (g);
-    }
+	public Graphics graphics() {
+		Graphics g = surf.graphics();
+		return (g);
+	}
 
-    public void update() {
-        surf.update();
-    }
+	public void update() {
+		surf.update();
+	}
 
-    public void clear() {
-        surf.clear();
-    }
+	public void clear() {
+		surf.clear();
+	}
 }

@@ -29,16 +29,16 @@ package haven;
 import java.net.URL;
 
 public abstract class WebBrowser {
-    public static WebBrowser self;
+	public static WebBrowser self;
 
-    public WebBrowser() {
-    }
+	public WebBrowser() {
+	}
 
-    public abstract void show(URL url);
+	public abstract void show(URL url);
 
-    public static class BrowserException extends RuntimeException {
-        public BrowserException(Throwable cause) {
-            super(cause);
-        }
-    }
+	public static class BrowserException extends RuntimeException {
+		public BrowserException(Throwable cause) {
+			super(cause);
+		}
+	}
 }

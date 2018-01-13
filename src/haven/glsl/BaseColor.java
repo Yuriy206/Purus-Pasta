@@ -34,19 +34,19 @@ import haven.GOut;
 import haven.States;
 
 public class BaseColor implements ShaderMacro {
-    public static final InstancedUniform u_color = new InstancedUniform.Vec4("color", States.color) {
-        public float[] forstate(GOut g, GLState.Buffer buf) {
-            return (buf.get(States.color).ca);
-        }
-    };
+	public static final InstancedUniform u_color = new InstancedUniform.Vec4("color", States.color) {
+		public float[] forstate(GOut g, GLState.Buffer buf) {
+			return (buf.get(States.color).ca);
+		}
+	};
 
-    public static final AutoVarying transfer = new AutoVarying(VEC4) {
-        protected Expression root(VertexContext vctx) {
-            return (u_color.ref());
-        }
-    };
+	public static final AutoVarying transfer = new AutoVarying(VEC4) {
+		protected Expression root(VertexContext vctx) {
+			return (u_color.ref());
+		}
+	};
 
-    public void modify(ProgramContext prog) {
-        prog.fctx.fragcol.mod(in -> mul(in, transfer.ref()), 0);
-    }
+	public void modify(ProgramContext prog) {
+		prog.fctx.fragcol.mod(in -> mul(in, transfer.ref()), 0);
+	}
 }

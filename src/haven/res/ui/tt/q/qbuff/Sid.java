@@ -3,10 +3,10 @@ package haven.res.ui.tt.q.qbuff;
 import haven.ItemInfo;
 
 final class Sid implements ItemInfo.Layout.ID<Summary> {
-    Sid() {
-    }
+	Sid() {
+	}
 
-    public Summary make() {
-        return new Summary();
-    }
+	public Summary make() {
+		return new Summary();
+	}
 }

@@ -27,19 +27,19 @@
 package haven;
 
 public class Camera extends Transform {
-    private Matrix4f bk;
+	private Matrix4f bk;
 
-    public Camera(Matrix4f xf) {
-        super(xf);
-    }
+	public Camera(Matrix4f xf) {
+		super(xf);
+	}
 
-    public void apply(GOut g) {
-    }
+	public void apply(GOut g) {
+	}
 
-    public void unapply(GOut g) {
-    }
+	public void unapply(GOut g) {
+	}
 
-    public void prep(Buffer b) {
-        b.put(PView.cam, this);
-    }
+	public void prep(Buffer b) {
+		b.put(PView.cam, this);
+	}
 }

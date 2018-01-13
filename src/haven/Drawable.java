@@ -27,15 +27,15 @@
 package haven;
 
 public abstract class Drawable extends GAttrib implements Skeleton.HasPose {
-    public Drawable(Gob gob) {
-        super(gob);
-    }
+	public Drawable(Gob gob) {
+		super(gob);
+	}
 
-    public abstract void setup(RenderList rl);
+	public abstract void setup(RenderList rl);
 
-    public abstract Resource getres();
+	public abstract Resource getres();
 
-    public Skeleton.Pose getpose() {
-        return (null);
-    }
+	public Skeleton.Pose getpose() {
+		return (null);
+	}
 }

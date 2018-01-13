@@ -27,28 +27,28 @@
 package haven.glsl;
 
 public class IVec3Cons extends Expression {
-    public static final IVec3Cons z = new IVec3Cons(IntLiteral.z, IntLiteral.z, IntLiteral.z);
-    public static final IVec3Cons u = new IVec3Cons(IntLiteral.u, IntLiteral.u, IntLiteral.u);
-    public final Expression[] els;
+	public static final IVec3Cons z = new IVec3Cons(IntLiteral.z, IntLiteral.z, IntLiteral.z);
+	public static final IVec3Cons u = new IVec3Cons(IntLiteral.u, IntLiteral.u, IntLiteral.u);
+	public final Expression[] els;
 
-    public IVec3Cons(Expression... els) {
-        if ((els.length < 1) || (els.length > 3))
-            throw (new RuntimeException("Invalid number of arguments for ivec3: " + els.length));
-        this.els = els;
-    }
+	public IVec3Cons(Expression... els) {
+		if ((els.length < 1) || (els.length > 3))
+			throw (new RuntimeException("Invalid number of arguments for ivec3: " + els.length));
+		this.els = els;
+	}
 
-    public void walk(Walker w) {
-        for (Expression el : els)
-            w.el(el);
-    }
+	public void walk(Walker w) {
+		for (Expression el : els)
+			w.el(el);
+	}
 
-    public void output(Output out) {
-        out.write("ivec3(");
-        els[0].output(out);
-        for (int i = 1; i < els.length; i++) {
-            out.write(", ");
-            els[i].output(out);
-        }
-        out.write(")");
-    }
+	public void output(Output out) {
+		out.write("ivec3(");
+		els[0].output(out);
+		for (int i = 1; i < els.length; i++) {
+			out.write(", ");
+			els[i].output(out);
+		}
+		out.write(")");
+	}
 }

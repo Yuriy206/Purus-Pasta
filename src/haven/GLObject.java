@@ -37,53 +37,53 @@ import java.util.Map;
 import javax.media.opengl.GL2;
 
 public abstract class GLObject {
-    private static final Map<CurrentGL, Collection<GLObject>> disposed = new HashMap<CurrentGL, Collection<GLObject>>();
-    private boolean del;
-    public final CurrentGL cur;
+	private static final Map<CurrentGL, Collection<GLObject>> disposed = new HashMap<CurrentGL, Collection<GLObject>>();
+	private boolean del;
+	public final CurrentGL cur;
 
-    public GLObject(GOut g) {
-        this.cur = g.curgl;
-    }
+	public GLObject(GOut g) {
+		this.cur = g.curgl;
+	}
 
-    public void dispose() {
-        Collection<GLObject> can;
-        synchronized (disposed) {
-            if (del)
-                return;
-            del = true;
-            can = disposed.get(cur);
-            if (can == null) {
-                can = new LinkedList<GLObject>();
-                disposed.put(cur, can);
-            }
-        }
-        synchronized (can) {
-            can.add(this);
-        }
-    }
+	public void dispose() {
+		Collection<GLObject> can;
+		synchronized (disposed) {
+			if (del)
+				return;
+			del = true;
+			can = disposed.get(cur);
+			if (can == null) {
+				can = new LinkedList<GLObject>();
+				disposed.put(cur, can);
+			}
+		}
+		synchronized (can) {
+			can.add(this);
+		}
+	}
 
-    protected void finalize() {
-        dispose();
-    }
+	protected void finalize() {
+		dispose();
+	}
 
-    public abstract void create(GL2 gl);
+	public abstract void create(GL2 gl);
 
-    protected abstract void delete(BGL gl);
+	protected abstract void delete(BGL gl);
 
-    public static void disposeall(CurrentGL cur, BGL gl) {
-        Collection<GLObject> can;
-        synchronized (disposed) {
-            can = disposed.get(cur);
-            if (can == null)
-                return;
-        }
-        Collection<GLObject> copy;
-        synchronized (can) {
-            copy = new ArrayList<GLObject>(can);
-            can.clear();
-        }
-        for (GLObject obj : copy)
-            obj.delete(gl);
-        checkerr(gl);
-    }
+	public static void disposeall(CurrentGL cur, BGL gl) {
+		Collection<GLObject> can;
+		synchronized (disposed) {
+			can = disposed.get(cur);
+			if (can == null)
+				return;
+		}
+		Collection<GLObject> copy;
+		synchronized (can) {
+			copy = new ArrayList<GLObject>(can);
+			can.clear();
+		}
+		for (GLObject obj : copy)
+			obj.delete(gl);
+		checkerr(gl);
+	}
 }

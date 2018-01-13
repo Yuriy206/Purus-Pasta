@@ -29,10 +29,10 @@ package haven;
 import java.util.List;
 
 public class Avatar extends GAttrib {
-    public Avatar(Gob gob) {
-        super(gob);
-    }
+	public Avatar(Gob gob) {
+		super(gob);
+	}
 
-    void setlayers(List<Indir<Resource>> layers) {
-    }
+	void setlayers(List<Indir<Resource>> layers) {
+	}
 }

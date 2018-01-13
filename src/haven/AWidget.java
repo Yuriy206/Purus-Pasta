@@ -27,8 +27,8 @@
 package haven;
 
 public class AWidget extends Widget {
-    public AWidget() {
-        super(Coord.z);
-        hide();
-    }
+	public AWidget() {
+		super(Coord.z);
+		hide();
+	}
 }

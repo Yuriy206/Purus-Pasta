@@ -29,11 +29,11 @@ package haven;
 import javax.media.opengl.GL;
 
 public class CurrentGL {
-    public final GL gl;
-    public final GLConfig cfg;
+	public final GL gl;
+	public final GLConfig cfg;
 
-    public CurrentGL(GL gl, GLConfig cfg) {
-        this.gl = gl;
-        this.cfg = cfg;
-    }
+	public CurrentGL(GL gl, GLConfig cfg) {
+		this.gl = gl;
+		this.cfg = cfg;
+	}
 }

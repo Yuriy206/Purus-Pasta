@@ -27,23 +27,23 @@
 package haven.glsl;
 
 public class LFieldRef extends LValue {
-    public final LValue val;
-    public final String el;
+	public final LValue val;
+	public final String el;
 
-    public LFieldRef(LValue val, String el) {
-        this.val = val;
-        this.el = el;
-    }
+	public LFieldRef(LValue val, String el) {
+		this.val = val;
+		this.el = el;
+	}
 
-    public void walk(Walker w) {
-        w.el(val);
-    }
+	public void walk(Walker w) {
+		w.el(val);
+	}
 
-    public void output(Output out) {
-        out.write("(");
-        val.output(out);
-        out.write(".");
-        out.write(el);
-        out.write(")");
-    }
+	public void output(Output out) {
+		out.write("(");
+		val.output(out);
+		out.write(".");
+		out.write(el);
+		out.write(")");
+	}
 }

@@ -37,212 +37,198 @@ import java.util.Map;
 import haven.res.ui.tt.Armor;
 
 public class Equipory extends Widget implements DTarget {
-    private static final Tex bg = Resource.loadtex("gfx/hud/equip/bg");
-    private static final int rx = 34 + bg.sz().x;
-    private static final int acx = 34 + bg.sz().x / 2;
-    private static final Text.Foundry acf = new Text.Foundry(Text.sans, Text.cfg.def).aa(true);
-    private Tex armorclass = null;
-    private List <GItem> checkForDrop = new LinkedList<GItem>();
-    public static final Coord ecoords[] = {
-            new Coord(0, 0),
-            new Coord(rx, 0),
-            new Coord(0, 33),
-            new Coord(rx, 33),
-            new Coord(0, 66),
-            new Coord(rx, 66),
-            new Coord(0, 99),
-            new Coord(rx, 99),
-            new Coord(0, 132),
-            new Coord(rx, 132),
-            new Coord(0, 165),
-            new Coord(rx, 165),
-            new Coord(0, 198),
-            new Coord(rx, 198),
-            new Coord(0, 231),
-            new Coord(rx, 231),
-            new Coord(34, 0),
-    };
-    static Coord isz;
+	private static final Tex bg = Resource.loadtex("gfx/hud/equip/bg");
+	private static final int rx = 34 + bg.sz().x;
+	private static final int acx = 34 + bg.sz().x / 2;
+	private static final Text.Foundry acf = new Text.Foundry(Text.sans, Text.cfg.def).aa(true);
+	private Tex armorclass = null;
+	private List<GItem> checkForDrop = new LinkedList<GItem>();
+	public static final Coord ecoords[] = { new Coord(0, 0), new Coord(rx, 0), new Coord(0, 33), new Coord(rx, 33),
+			new Coord(0, 66), new Coord(rx, 66), new Coord(0, 99), new Coord(rx, 99), new Coord(0, 132),
+			new Coord(rx, 132), new Coord(0, 165), new Coord(rx, 165), new Coord(0, 198), new Coord(rx, 198),
+			new Coord(0, 231), new Coord(rx, 231), new Coord(34, 0), };
+	static Coord isz;
 
-    static {
-        isz = new Coord();
-        for (Coord ec : ecoords) {
-            if (ec.x + invsq.sz().x > isz.x)
-                isz.x = ec.x + invsq.sz().x;
-            if (ec.y + invsq.sz().y > isz.y)
-                isz.y = ec.y + invsq.sz().y;
-        }
-    }
+	static {
+		isz = new Coord();
+		for (Coord ec : ecoords) {
+			if (ec.x + invsq.sz().x > isz.x)
+				isz.x = ec.x + invsq.sz().x;
+			if (ec.y + invsq.sz().y > isz.y)
+				isz.y = ec.y + invsq.sz().y;
+		}
+	}
 
-    Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
-    private final Avaview ava;
-    public WItem[] quickslots = new WItem[ecoords.length];
+	Map<GItem, WItem[]> wmap = new HashMap<GItem, WItem[]>();
+	private final Avaview ava;
+	public WItem[] quickslots = new WItem[ecoords.length];
 
-    @RName("epry")
-    public static class $_ implements Factory {
-        public Widget create(UI ui, Object[] args) {
-            long gobid;
-            if(args.length < 1)
-                gobid = -2;
-            else if(args[0] == null)
-                gobid = -1;
-            else
-                gobid = Utils.uint32((Integer)args[0]);
-            return(new Equipory(gobid));
-        }
-    }
+	@RName("epry")
+	public static class $_ implements Factory {
+		public Widget create(UI ui, Object[] args) {
+			long gobid;
+			if (args.length < 1)
+				gobid = -2;
+			else if (args[0] == null)
+				gobid = -1;
+			else
+				gobid = Utils.uint32((Integer) args[0]);
+			return (new Equipory(gobid));
+		}
+	}
 
-    protected void added() {
-        if (ava.avagob == -2)
-            ava.avagob = getparent(GameUI.class).plid;
-    }
+	protected void added() {
+		if (ava.avagob == -2)
+			ava.avagob = getparent(GameUI.class).plid;
+	}
 
-    public Equipory(long gobid) {
-        super(isz);
-        ava = add(new Avaview(bg.sz(), gobid, "equcam") {
-            public boolean mousedown(Coord c, int button) {
-                return (false);
-            }
+	public Equipory(long gobid) {
+		super(isz);
+		ava = add(new Avaview(bg.sz(), gobid, "equcam") {
+			public boolean mousedown(Coord c, int button) {
+				return (false);
+			}
 
-            public void draw(GOut g) {
-                g.image(bg, Coord.z);
-                super.draw(g);
-            }
+			public void draw(GOut g) {
+				g.image(bg, Coord.z);
+				super.draw(g);
+			}
 
-            Outlines outlines = new Outlines(true);
+			Outlines outlines = new Outlines(true);
 
-            protected void setup(RenderList rl) {
-                super.setup(rl);
-                rl.add(outlines, null);
-            }
+			protected void setup(RenderList rl) {
+				super.setup(rl);
+				rl.add(outlines, null);
+			}
 
-            protected java.awt.Color clearcolor() {
-                return (null);
-            }
-        }, new Coord(34, 0));
-        ava.color = null;
-    }
+			protected java.awt.Color clearcolor() {
+				return (null);
+			}
+		}, new Coord(34, 0));
+		ava.color = null;
+	}
 
-    @Override
-    public void tick(double dt) {
-        if (Config.quickbelt && ui.beltWndId == -1 && ((Window) parent).origcap.equals("Equipment")) {
-            for (WItem itm[] : wmap.values()) {
-                try {
-                    if (itm.length > 0 && itm[0].item.res.get().name.endsWith("belt"))
-                        itm[0].mousedown(Coord.z, 3);
-                } catch (Loading l) {
-                }
-            }
-        }
-        super.tick(dt);
-        try {
-    	    if (!checkForDrop.isEmpty()) {
-    		GItem g = checkForDrop.get(0);
-    		if (g.resource().name.equals("gfx/invobjs/leech")) {
-    			 g.drop = true; 
-    			//ui.gui.map.wdgmsg("drop", Coord.z);
-    		}
-    		checkForDrop.remove(0);
-    	    }
-    	} catch (Resource.Loading ignore) {
-    }
-    }
+	@Override
+	public void tick(double dt) {
+		if (Config.quickbelt && ui.beltWndId == -1 && ((Window) parent).origcap.equals("Equipment")) {
+			for (WItem itm[] : wmap.values()) {
+				try {
+					if (itm.length > 0 && itm[0].item.res.get().name.endsWith("belt"))
+						itm[0].mousedown(Coord.z, 3);
+				} catch (Loading l) {
+				}
+			}
+		}
+		super.tick(dt);
+		try {
+			if (!checkForDrop.isEmpty()) {
+				GItem g = checkForDrop.get(0);
+				if (g.resource().name.equals("gfx/invobjs/leech")) {
+					g.drop = true;
+					// ui.gui.map.wdgmsg("drop", Coord.z);
+				}
+				checkForDrop.remove(0);
+			}
+		} catch (Resource.Loading ignore) {
+		}
+	}
 
-    public void addchild(Widget child, Object... args) {
-        if (child instanceof GItem) {
-            add(child);
-            GItem g = (GItem) child;
-            WItem[] v = new WItem[args.length];
-            for (int i = 0; i < args.length; i++) {
-                int ep = (Integer) args[i];
-                v[i] = quickslots[ep] = add(new WItem(g), ecoords[ep].add(1, 1));
-            }
-            wmap.put(g, v);
-            if(Config.leechdrop)
-            	checkForDrop.add(g);
-            if (armorclass != null) {
-                armorclass.dispose();
-                armorclass = null;
-            }
-        } else {
-            super.addchild(child, args);
-        }
-    }
+	public void addchild(Widget child, Object... args) {
+		if (child instanceof GItem) {
+			add(child);
+			GItem g = (GItem) child;
+			WItem[] v = new WItem[args.length];
+			for (int i = 0; i < args.length; i++) {
+				int ep = (Integer) args[i];
+				v[i] = quickslots[ep] = add(new WItem(g), ecoords[ep].add(1, 1));
+			}
+			wmap.put(g, v);
+			if (Config.leechdrop)
+				checkForDrop.add(g);
+			if (armorclass != null) {
+				armorclass.dispose();
+				armorclass = null;
+			}
+		} else {
+			super.addchild(child, args);
+		}
+	}
 
-    public void cdestroy(Widget w) {
-        super.cdestroy(w);
-        if (w instanceof GItem) {
-            GItem i = (GItem) w;
-            for (WItem v : wmap.remove(i)) {
-                ui.destroy(v);
-                for (int qsi = 0; qsi < ecoords.length; qsi++) {
-                    if (quickslots[qsi] == v) {
-                        quickslots[qsi] = null;
-                        break;
-                    }
-                }
-            }
-            if (armorclass != null) {
-                armorclass.dispose();
-                armorclass = null;
-            }
-        }
-    }
+	public void cdestroy(Widget w) {
+		super.cdestroy(w);
+		if (w instanceof GItem) {
+			GItem i = (GItem) w;
+			for (WItem v : wmap.remove(i)) {
+				ui.destroy(v);
+				for (int qsi = 0; qsi < ecoords.length; qsi++) {
+					if (quickslots[qsi] == v) {
+						quickslots[qsi] = null;
+						break;
+					}
+				}
+			}
+			if (armorclass != null) {
+				armorclass.dispose();
+				armorclass = null;
+			}
+		}
+	}
 
-    public void uimsg(String msg, Object... args) {
-        if(msg == "pop") {
-            ava.avadesc = Composited.Desc.decode(ui.sess, args);
-        } else {
-            super.uimsg(msg, args);
-        }
-    }
+	public void uimsg(String msg, Object... args) {
+		if (msg == "pop") {
+			ava.avadesc = Composited.Desc.decode(ui.sess, args);
+		} else {
+			super.uimsg(msg, args);
+		}
+	}
 
-    public int epat(Coord c) {
-        for (int i = 0; i < ecoords.length; i++) {
-            if (c.isect(ecoords[i], invsq.sz()))
-                return (i);
-        }
-        return (-1);
-    }
+	public int epat(Coord c) {
+		for (int i = 0; i < ecoords.length; i++) {
+			if (c.isect(ecoords[i], invsq.sz()))
+				return (i);
+		}
+		return (-1);
+	}
 
-    public boolean drop(Coord cc, Coord ul) {
-        wdgmsg("drop", epat(cc));
-        return (true);
-    }
+	public boolean drop(Coord cc, Coord ul) {
+		wdgmsg("drop", epat(cc));
+		return (true);
+	}
 
-    public void drawslots(GOut g) {
-        for(int i = 0; i < 16; i++)
-            g.image(invsq, ecoords[i]);
-    }
+	public void drawslots(GOut g) {
+		for (int i = 0; i < 16; i++)
+			g.image(invsq, ecoords[i]);
+	}
 
-    public void draw(GOut g) {
-        drawslots(g);
-        super.draw(g);
+	public void draw(GOut g) {
+		drawslots(g);
+		super.draw(g);
 
-        if (armorclass == null) {
-            int h = 0, s = 0;
-            try {
-                for (int i = 0; i < quickslots.length; i++) {
-                    WItem itm = quickslots[i];
-                    if (itm != null) {
-                        for (ItemInfo info : itm.item.info()) {
-                            if (info instanceof Armor) {
-                                h += ((Armor)info).hard;
-                                s += ((Armor)info).soft;
-                                break;
-                            }
-                        }
-                    }
-                }
-                armorclass = Text.render(Resource.getLocString(Resource.BUNDLE_LABEL, "Armor Class: ") + h + "/" + s, Color.BLACK, acf).tex();
-            } catch (Exception e) { // fail silently
-            }
-        }
-        if (armorclass != null)
-            g.image(armorclass, new Coord(acx - armorclass.sz().x / 2, bg.sz().y - armorclass.sz().y));
-    }
+		if (armorclass == null) {
+			int h = 0, s = 0;
+			try {
+				for (int i = 0; i < quickslots.length; i++) {
+					WItem itm = quickslots[i];
+					if (itm != null) {
+						for (ItemInfo info : itm.item.info()) {
+							if (info instanceof Armor) {
+								h += ((Armor) info).hard;
+								s += ((Armor) info).soft;
+								break;
+							}
+						}
+					}
+				}
+				armorclass = Text.render(Resource.getLocString(Resource.BUNDLE_LABEL, "Armor Class: ") + h + "/" + s,
+						Color.BLACK, acf).tex();
+			} catch (Exception e) { // fail silently
+			}
+		}
+		if (armorclass != null)
+			g.image(armorclass, new Coord(acx - armorclass.sz().x / 2, bg.sz().y - armorclass.sz().y));
+	}
 
-    public boolean iteminteract(Coord cc, Coord ul) {
-        return (false);
-    }
+	public boolean iteminteract(Coord cc, Coord ul) {
+		return (false);
+	}
 }

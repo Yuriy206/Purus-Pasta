@@ -27,42 +27,42 @@
 package haven.glsl;
 
 public abstract class LPostOp extends Expression {
-    public final LValue op;
+	public final LValue op;
 
-    public LPostOp(LValue op) {
-        this.op = op;
-    }
+	public LPostOp(LValue op) {
+		this.op = op;
+	}
 
-    public void walk(Walker w) {
-        w.el(op);
-    }
+	public void walk(Walker w) {
+		w.el(op);
+	}
 
-    public abstract String form();
+	public abstract String form();
 
-    public void output(Output out) {
-        out.write("(");
-        op.output(out);
-        out.write(form());
-        out.write(")");
-    }
+	public void output(Output out) {
+		out.write("(");
+		op.output(out);
+		out.write(form());
+		out.write(")");
+	}
 
-    public static class Inc extends LPostOp {
-        public String form() {
-            return ("++");
-        }
+	public static class Inc extends LPostOp {
+		public String form() {
+			return ("++");
+		}
 
-        public Inc(LValue op) {
-            super(op);
-        }
-    }
+		public Inc(LValue op) {
+			super(op);
+		}
+	}
 
-    public static class Dec extends LPostOp {
-        public String form() {
-            return ("--");
-        }
+	public static class Dec extends LPostOp {
+		public String form() {
+			return ("--");
+		}
 
-        public Dec(LValue op) {
-            super(op);
-        }
-    }
+		public Dec(LValue op) {
+			super(op);
+		}
+	}
 }

@@ -35,34 +35,34 @@ import haven.glsl.ShaderMacro;
 import haven.glsl.Uniform;
 
 public class ColorMask extends GLState {
-    public static final Slot<ColorMask> slot = new Slot<ColorMask>(Slot.Type.DRAW, ColorMask.class);
-    public static final Uniform ccol = new Uniform(VEC4);
-    private final float[] col;
+	public static final Slot<ColorMask> slot = new Slot<ColorMask>(Slot.Type.DRAW, ColorMask.class);
+	public static final Uniform ccol = new Uniform(VEC4);
+	private final float[] col;
 
-    private static final ShaderMacro sh = prog -> {
-        prog.fctx.fragcol.mod(in -> MiscLib.colblend.call(in, ccol.ref()), 100);
-    };
+	private static final ShaderMacro sh = prog -> {
+		prog.fctx.fragcol.mod(in -> MiscLib.colblend.call(in, ccol.ref()), 100);
+	};
 
-    public ColorMask(Color col) {
-        this.col = Utils.c2fa(col);
-    }
+	public ColorMask(Color col) {
+		this.col = Utils.c2fa(col);
+	}
 
-    public ShaderMacro shader() {
-        return (sh);
-    }
+	public ShaderMacro shader() {
+		return (sh);
+	}
 
-    public void reapply(GOut g) {
-        g.gl.glUniform4fv(g.st.prog.uniform(ccol), 1, col, 0);
-    }
+	public void reapply(GOut g) {
+		g.gl.glUniform4fv(g.st.prog.uniform(ccol), 1, col, 0);
+	}
 
-    public void apply(GOut g) {
-        reapply(g);
-    }
+	public void apply(GOut g) {
+		reapply(g);
+	}
 
-    public void unapply(GOut g) {
-    }
+	public void unapply(GOut g) {
+	}
 
-    public void prep(Buffer buf) {
-        buf.put(slot, this);
-    }
+	public void prep(Buffer buf) {
+		buf.put(slot, this);
+	}
 }

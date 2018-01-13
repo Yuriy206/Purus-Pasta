@@ -1,6 +1,5 @@
 package haven.automation;
 
-
 import static haven.OCache.posres;
 
 import haven.Coord2d;
@@ -11,36 +10,36 @@ import haven.Loading;
 import haven.Resource;
 
 public class Shoo implements Runnable {
-    private GameUI gui;
+	private GameUI gui;
 
-    public Shoo(GameUI gui) {
-        this.gui = gui;
-    }
+	public Shoo(GameUI gui) {
+		this.gui = gui;
+	}
 
-    @Override
-    public void run() {
-        Gob animal = null;
-        synchronized (gui.map.glob.oc) {
-            for (Gob gob : gui.map.glob.oc) {
-                try {
-                    Resource res = gob.getres();
-                    if (res != null && (res.name.startsWith("gfx/kritter/horse") ||
-                            res.name.startsWith("gfx/kritter/sheep") ||
-                            res.name.startsWith("gfx/kritter/cattle") ||
-                            res.name.startsWith("gfx/kritter/pig"))) {
-                        Coord2d plc = gui.map.player().rc;
-                        if ((animal == null || gob.rc.dist(plc) < animal.rc.dist(plc)) && gob.knocked == false)
-                            animal = gob;
-                    }
-                } catch (Loading l) {
-                }
-            }
-        }
+	@Override
+	public void run() {
+		Gob animal = null;
+		synchronized (gui.map.glob.oc) {
+			for (Gob gob : gui.map.glob.oc) {
+				try {
+					Resource res = gob.getres();
+					if (res != null && (res.name.startsWith("gfx/kritter/horse")
+							|| res.name.startsWith("gfx/kritter/sheep") || res.name.startsWith("gfx/kritter/cattle")
+							|| res.name.startsWith("gfx/kritter/pig"))) {
+						Coord2d plc = gui.map.player().rc;
+						if ((animal == null || gob.rc.dist(plc) < animal.rc.dist(plc)) && gob.knocked == false)
+							animal = gob;
+					}
+				} catch (Loading l) {
+				}
+			}
+		}
 
-        if (animal == null)
-            return;
+		if (animal == null)
+			return;
 
-        FlowerMenu.setNextSelection("Shoo");
-        gui.map.wdgmsg("click", animal.sc, animal.rc.floor(posres), 3, 0, 0, (int) animal.id, animal.rc.floor(posres), 0, -1);
-    }
+		FlowerMenu.setNextSelection("Shoo");
+		gui.map.wdgmsg("click", animal.sc, animal.rc.floor(posres), 3, 0, 0, (int) animal.id, animal.rc.floor(posres),
+				0, -1);
+	}
 }

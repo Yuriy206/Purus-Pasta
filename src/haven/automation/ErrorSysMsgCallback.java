@@ -1,5 +1,5 @@
 package haven.automation;
 
 public interface ErrorSysMsgCallback {
-    void notifyErrMsg(String msg);
+	void notifyErrMsg(String msg);
 }

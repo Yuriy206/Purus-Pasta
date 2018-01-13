@@ -27,19 +27,19 @@
 package haven.glsl;
 
 public class FloatLiteral extends Expression {
-    public static final FloatLiteral z = new FloatLiteral(0);
-    public static final FloatLiteral u = new FloatLiteral(1);
-    public static final FloatLiteral n = new FloatLiteral(-1);
-    public final double val;
+	public static final FloatLiteral z = new FloatLiteral(0);
+	public static final FloatLiteral u = new FloatLiteral(1);
+	public static final FloatLiteral n = new FloatLiteral(-1);
+	public final double val;
 
-    public FloatLiteral(double val) {
-        this.val = val;
-    }
+	public FloatLiteral(double val) {
+		this.val = val;
+	}
 
-    public void walk(Walker w) {
-    }
+	public void walk(Walker w) {
+	}
 
-    public void output(Output out) {
-        out.write(Double.toString(val));
-    }
+	public void output(Output out) {
+		out.write(Double.toString(val));
+	}
 }

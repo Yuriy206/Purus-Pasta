@@ -27,5 +27,5 @@
 package haven;
 
 public interface Callback<T> {
-    public void done(T val);
+	public void done(T val);
 }

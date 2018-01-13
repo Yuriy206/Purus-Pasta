@@ -27,13 +27,13 @@
 package haven.glsl;
 
 public class Discard extends Statement {
-    public Discard() {
-    }
+	public Discard() {
+	}
 
-    public void walk(Walker w) {
-    }
+	public void walk(Walker w) {
+	}
 
-    public void output(Output out) {
-        out.write("discard;");
-    }
+	public void output(Output out) {
+		out.write("discard;");
+	}
 }

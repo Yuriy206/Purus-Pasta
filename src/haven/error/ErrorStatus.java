@@ -27,21 +27,21 @@
 package haven.error;
 
 public interface ErrorStatus {
-    public boolean goterror(Report t);
+	public boolean goterror(Report t);
 
-    public void done(String ctype, String info);
+	public void done(String ctype, String info);
 
-    public static class Simple implements ErrorStatus {
-        public boolean goterror(Report t) {
-            System.err.println("Caught error: " + t);
-            return (true);
-        }
+	public static class Simple implements ErrorStatus {
+		public boolean goterror(Report t) {
+			System.err.println("Caught error: " + t);
+			return (true);
+		}
 
-        public void done(String ctype, String info) {
-            if (ctype != null)
-                System.err.println(ctype + ": " + info);
-            else
-                System.err.println("Done");
-        }
-    }
+		public void done(String ctype, String info) {
+			if (ctype != null)
+				System.err.println(ctype + ": " + info);
+			else
+				System.err.println("Done");
+		}
+	}
 }

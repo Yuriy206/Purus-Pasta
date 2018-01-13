@@ -27,24 +27,24 @@
 package haven.glsl;
 
 public class Index extends LValue {
-    public final Expression val;
-    public final Expression idx;
+	public final Expression val;
+	public final Expression idx;
 
-    public Index(Expression val, Expression idx) {
-        this.val = val;
-        this.idx = idx;
-    }
+	public Index(Expression val, Expression idx) {
+		this.val = val;
+		this.idx = idx;
+	}
 
-    public void walk(Walker w) {
-        w.el(val);
-        w.el(idx);
-    }
+	public void walk(Walker w) {
+		w.el(val);
+		w.el(idx);
+	}
 
-    public void output(Output out) {
-        out.write("(");
-        val.output(out);
-        out.write("[");
-        idx.output(out);
-        out.write("])");
-    }
+	public void output(Output out) {
+		out.write("(");
+		val.output(out);
+		out.write("[");
+		idx.output(out);
+		out.write("])");
+	}
 }

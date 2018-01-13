@@ -7,16 +7,17 @@ import haven.Resource;
 import haven.Text;
 
 public class Armor extends Tip {
-    public final int hard;
-    public final int soft;
+	public final int hard;
+	public final int soft;
 
-    public Armor(Owner var1, int hard, int soft) {
-        super(var1);
-        this.hard = hard;
-        this.soft = soft;
-    }
+	public Armor(Owner var1, int hard, int soft) {
+		super(var1);
+		this.hard = hard;
+		this.soft = soft;
+	}
 
-    public BufferedImage longtip() {
-        return Text.render(String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "Armor class: %,d/%,d"), Integer.valueOf(this.hard), Integer.valueOf(this.soft))).img;
-    }
+	public BufferedImage longtip() {
+		return Text.render(String.format(Resource.getLocString(Resource.BUNDLE_LABEL, "Armor class: %,d/%,d"),
+				Integer.valueOf(this.hard), Integer.valueOf(this.soft))).img;
+	}
 }

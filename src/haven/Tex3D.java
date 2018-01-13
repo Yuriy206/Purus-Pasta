@@ -33,41 +33,41 @@ import javax.media.opengl.GL2;
 import haven.TexGL.TexOb;
 
 public abstract class Tex3D {
-    protected TexOb t = null;
-    public final int w, h, d;
+	protected TexOb t = null;
+	public final int w, h, d;
 
-    public Tex3D(int w, int h, int d) {
-        this.w = w;
-        this.h = h;
-        this.d = d;
-    }
+	public Tex3D(int w, int h, int d) {
+		this.w = w;
+		this.h = h;
+		this.d = d;
+	}
 
-    protected abstract void fill(GOut g);
+	protected abstract void fill(GOut g);
 
-    private void create(GOut g) {
-        BGL gl = g.gl;
-        t = new TexOb(g);
-        gl.glBindTexture(GL2.GL_TEXTURE_3D, t);
-        fill(g);
-        checkerr(gl);
-    }
+	private void create(GOut g) {
+		BGL gl = g.gl;
+		t = new TexOb(g);
+		gl.glBindTexture(GL2.GL_TEXTURE_3D, t);
+		fill(g);
+		checkerr(gl);
+	}
 
-    public TexOb glid(GOut g) {
-        synchronized (this) {
-            if ((t != null) && (t.cur != g.curgl))
-                dispose();
-            if (t == null)
-                create(g);
-            return (t);
-        }
-    }
+	public TexOb glid(GOut g) {
+		synchronized (this) {
+			if ((t != null) && (t.cur != g.curgl))
+				dispose();
+			if (t == null)
+				create(g);
+			return (t);
+		}
+	}
 
-    public void dispose() {
-        synchronized (this) {
-            if (t != null) {
-                t.dispose();
-                t = null;
-            }
-        }
-    }
+	public void dispose() {
+		synchronized (this) {
+			if (t != null) {
+				t.dispose();
+				t = null;
+			}
+		}
+	}
 }

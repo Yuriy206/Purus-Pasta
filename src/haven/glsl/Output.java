@@ -30,37 +30,37 @@ import java.io.IOException;
 import java.io.Writer;
 
 public class Output {
-    private final Writer out;
-    public final Context ctx;
-    public int indent = 0;
+	private final Writer out;
+	public final Context ctx;
+	public int indent = 0;
 
-    public Output(Writer out, Context ctx) {
-        this.out = out;
-        this.ctx = ctx;
-    }
+	public Output(Writer out, Context ctx) {
+		this.out = out;
+		this.ctx = ctx;
+	}
 
-    public void write(char c) {
-        try {
-            out.write(c);
-        } catch (IOException e) {
-            throw (new RuntimeException(e));
-        }
-    }
+	public void write(char c) {
+		try {
+			out.write(c);
+		} catch (IOException e) {
+			throw (new RuntimeException(e));
+		}
+	}
 
-    public void write(String str) {
-        try {
-            out.write(str);
-        } catch (IOException e) {
-            throw (new RuntimeException(e));
-        }
-    }
+	public void write(String str) {
+		try {
+			out.write(str);
+		} catch (IOException e) {
+			throw (new RuntimeException(e));
+		}
+	}
 
-    public void write(Symbol sym) {
-        write(sym.name(ctx));
-    }
+	public void write(Symbol sym) {
+		write(sym.name(ctx));
+	}
 
-    public void indent() {
-        for (int i = 0; i < indent; i++)
-            write("    ");
-    }
+	public void indent() {
+		for (int i = 0; i < indent; i++)
+			write("    ");
+	}
 }

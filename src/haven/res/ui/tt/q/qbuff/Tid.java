@@ -3,10 +3,10 @@ package haven.res.ui.tt.q.qbuff;
 import haven.ItemInfo;
 
 final class Tid implements ItemInfo.Layout.ID<Table> {
-    Tid() {
-    }
+	Tid() {
+	}
 
-    public Table make() {
-        return new Table();
-    }
+	public Table make() {
+		return new Table();
+	}
 }
