@@ -1,5 +1,7 @@
 ## Changelog
 
+### 3.0.1
+	- Latest merges from Amber
 ### 3.0.0
 	- Removed all of the previous Purus Pasta features
 	- Added more hiding options
