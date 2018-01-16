@@ -13,9 +13,9 @@ public class RealmName implements InfoFactory {
 	public RealmName() {
 	}
 
-	public ItemInfo build(Owner var1, Object... var2) {
-		return new RealmName$1(this, var1, Resource.getLocString(Resource.BUNDLE_LABEL, "In ") + var2[1]);
-	}
+    public ItemInfo build(Owner var1, Object... var2) {
+        return new RealmName$1(this, var1, var2[1] + "");
+    }
 
 	class RealmName$1 extends Name {
 		RealmName$1(RealmName var1, Owner var2, String var3) {
